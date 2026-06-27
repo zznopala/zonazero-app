@@ -3,18 +3,30 @@ let cuentas = JSON.parse(localStorage.getItem('cuentas')) || [];
 
 const renderHistorial = () => {
     const container = document.getElementById('historial-container');
-    const textoTotal = document.getElementById('total-dia-texto');
     const textoVentas = document.getElementById('cantidad-ventas');
+    
+    // CONEXIONES HTML: Vinculamos todos los IDs que tienes en tu historial.html
+    const textoTotalGigante = document.getElementById('total-dia-texto');   // El monto de arriba
+    const textoTotalCaja = document.getElementById('total-vendido');       // El "Total en Caja" de la caja blanca
+    const textoGananciaNeta = document.getElementById('ganancia-neta');     // La "Ganancia Neta" verde de la caja blanca
+    const textoGananciaDia = document.getElementById('ganancia-dia-texto');   // El texto de abajo
     
     container.innerHTML = '';
     let sumaTotal = 0;
+    let sumaGanancia = 0; 
 
     // Filtrar solo las cuentas con estado 'closed'
     const cerradas = cuentas.filter(c => c.status === 'closed');
 
     if (cerradas.length === 0) {
         container.innerHTML = '<div class="empty-state">No hay ventas registradas en este turno.</div>';
-        textoTotal.innerText = '$0.00';
+        
+        // Si no hay ventas, ponemos absolutamente todo en $0.00
+        if (textoTotalGigante) textoTotalGigante.innerText = '$0.00';
+        if (textoTotalCaja) textoTotalCaja.innerText = '$0.00';
+        if (textoGananciaNeta) textoGananciaNeta.innerText = '$0.00';
+        if (textoGananciaDia) textoGananciaDia.innerText = '$0.00';
+        
         textoVentas.innerText = '0 ventas completadas';
         document.getElementById('btn-corte').disabled = true;
         document.getElementById('btn-corte').style.background = '#ccc';
@@ -24,6 +36,18 @@ const renderHistorial = () => {
     // Invertir el arreglo para ver las ventas más recientes primero
     cerradas.slice().reverse().forEach(cuenta => {
         sumaTotal += cuenta.total;
+
+        // Entramos a los productos de esta cuenta para calcular la ganancia
+        if (cuenta.items) {
+            cuenta.items.forEach(item => {
+                const venta = item.priceAtTime || 0;
+                const costo = item.costAtTime || 0; // Viene desde pos.js
+                const cantidad = item.quantity || 1;
+                
+                // (Precio Venta - Precio Costo) * Cantidad
+                sumaGanancia += (venta - costo) * cantidad;
+            });
+        }
 
         // Extraer la hora del ID (formato: acc_17145839293)
         let horaTexto = "Hora desconocida";
@@ -47,8 +71,12 @@ const renderHistorial = () => {
         container.appendChild(div);
     });
 
-    // Actualizar los textos de arriba
-    textoTotal.innerText = `$${sumaTotal.toFixed(2)}`;
+    // IMPRESIÓN DE RESULTADOS: Actualizamos cada rincón de la pantalla
+    if (textoTotalGigante) textoTotalGigante.innerText = `$${sumaTotal.toFixed(2)}`;
+    if (textoTotalCaja) textoTotalCaja.innerText = `$${sumaTotal.toFixed(2)}`;
+    if (textoGananciaNeta) textoGananciaNeta.innerText = `$${sumaGanancia.toFixed(2)}`;
+    if (textoGananciaDia) textoGananciaDia.innerText = `$${sumaGanancia.toFixed(2)}`;
+    
     textoVentas.innerText = `${cerradas.length} ventas completadas`;
 };
 
@@ -56,13 +84,13 @@ const renderHistorial = () => {
 document.getElementById('btn-corte').addEventListener('click', () => {
     if (confirm('¿Estás seguro de hacer el corte de caja? Esto limpiará el historial de ventas para empezar un nuevo turno.')) {
         
-        // Conservar solo las cuentas que aún están 'open' (mesas activas que aún no pagan)
+        // Conservar solo las cuentas que aún están 'open'
         cuentas = cuentas.filter(c => c.status !== 'closed');
         
         // Guardar el nuevo estado en localStorage
         localStorage.setItem('cuentas', JSON.stringify(cuentas));
         
-        // Refrescar la vista (se pondrá en ceros)
+        // Refrescar la vista
         renderHistorial();
         alert('Corte de caja realizado con éxito. ¡Buen trabajo hoy!');
     }

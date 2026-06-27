@@ -62,22 +62,29 @@ window.filtrarCat = (categoria) => {
 // ==========================================
 // 3. LÓGICA DEL TICKET (Agregar, Sumar, Restar)
 // ==========================================
-const agregarProducto = (prod) => {
-    // Busca si el producto ya está en la cuenta
-    const itemExistente = cuentaActiva.items.find(i => i.productId === prod.id);
 
-    if (itemExistente) {
-        itemExistente.quantity += 1;
+let productoSeleccionado = null;
+let seleccionVariantes = [];
+
+const agregarProducto = (prod) => {
+    // Verificamos si el producto tiene variantes configuradas
+    if (prod.variantes && prod.variantes.length > 0) {
+        productoSeleccionado = prod;
+        seleccionVariantes = []; // Reseteamos selecciones anteriores
+        abrirModalModificadores(prod);
     } else {
+        // Si es un producto normal (sin variantes), se agrega directamente
         cuentaActiva.items.push({
             productId: prod.id,
             nombre: prod.nombre,
-            priceAtTime: prod.precio, // Guardamos el precio en ese momento
+            priceAtTime: parseFloat(prod.precio) || parseFloat(prod.precioVenta), 
+            costAtTime: parseFloat(prod.costo) || 0, // Guardamos el costo para calcular ganancias
             quantity: 1
         });
+        
+        // Guardamos en memoria y refrescamos la pantalla
+        guardarYActualizar();
     }
-
-    guardarYActualizar();
 };
 
 window.modificarCantidad = (productId, delta) => {
