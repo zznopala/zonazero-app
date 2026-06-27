@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Corte de Caja - ZONAZERO</title>
+    <link rel="stylesheet" href="historial-style.css">
+</head>
+<body>
+    <header class="app-header">
+        <h1>Ventas y Corte</h1>
+        <button onclick="window.location.href='index.html'" class="btn-secondary">Volver</button>
+    </header>
+
+    <!-- Tarjeta de Resumen del Día -->
+    <section class="resumen-dia">
+        <h2>Total Vendido</h2>
+        <h3 id="total-dia-texto" class="monto-gigante">$0.00</h3>
+        <p id="cantidad-ventas">0 ventas completadas</p>
+        <button id="btn-corte" class="btn-primary-green">Hacer Corte de Caja (Limpiar)</button>
+    </section>
+
+    <!-- Lista de Cuentas Cerradas -->
+    <main class="contenedor-lista">
+        <h3>Detalle de Cuentas:</h3>
+        <div id="historial-container" class="grid-container">
+            <!-- Las cuentas cerradas aparecerán aquí -->
+        </div>
+    </main>
+
+    <script src="historial.js"></script>
+</body>
+</html>

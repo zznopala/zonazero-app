@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Punto de Venta - ZONAZERO</title>
+    <link rel="stylesheet" href="pos-style.css">
+</head>
+<body>
+    <header class="app-header">
+        <div>
+            <h1 id="nombre-mesa-activa">Selecciona una Mesa</h1>
+            <p id="desc-mesa-activa" class="subtitle">---</p>
+        </div>
+        <button id="btn-volver" class="btn-secondary" onclick="window.location.href='index.html'">Volver a Mesas</button>
+    </header>
+
+    <div class="pos-layout">
+        <section class="panel-productos">
+            <div class="categorias-scroll" id="categorias-container">
+                <button class="btn-cat activo" onclick="filtrarCat('Todas')">Todas</button>
+                <button class="btn-cat" onclick="filtrarCat('Cafetería')">Cafetería</button>
+                <button class="btn-cat" onclick="filtrarCat('Snacks')">Snacks</button>
+                <button class="btn-cat" onclick="filtrarCat('Bebidas')">Bebidas</button>
+            </div>
+
+            <div id="grid-productos" class="grid-productos">
+                </div>
+        </section>
+
+        <section class="panel-ticket">
+            <div class="ticket-header">
+                <h2>Orden Actual</h2>
+            </div>
+            
+            <div id="lista-orden" class="lista-orden">
+                <div class="empty-state">No hay productos en esta cuenta aún.</div>
+            </div>
+
+            <div class="ticket-footer">
+                <div class="totales">
+                    <span>Total:</span>
+                    <span id="gran-total" class="monto-total">$0.00</span>
+                </div>
+                <button id="btn-cobrar" class="btn-primary-red">Cobrar / Cerrar Mesa</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal de Cobro -->
+    <div id="modal-cobrar" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Cerrar Mesa: <span id="cobro-nombre-mesa"></span></h2>
+                <button class="btn-close" onclick="cerrarModalCobro()">✕</button>
+            </div>
+            
+            <div class="cobro-resumen">
+                <p>Total de la cuenta:</p>
+                <h3 id="cobro-total-texto" class="monto-gigante">$0.00</h3>
+            </div>
+            
+            <div class="input-group">
+                <label>¿Dividir cuenta?</label>
+                <div class="split-controls">
+                    <span class="prefix">Entre:</span>
+                    <input type="number" id="input-dividir" placeholder="1" min="1" value="1">
+                    <span class="suffix">personas</span>
+                </div>
+                <h4 id="cobro-dividido-texto" class="texto-secundario hidden">
+                    A pagar por persona: <span id="monto-dividido" class="destaque-verde">$0.00</span>
+                </h4>
+            </div>
+
+            <div class="input-group">
+                <label>¿Con cuánto pagan?</label>
+                <div class="pago-controls">
+                    <span class="prefix">$</span>
+                    <input type="number" id="input-pago" placeholder="0.00" step="0.50">
+                </div>
+                <h3 id="cobro-cambio-texto" class="monto-cambio">Cambio: $0.00</h3>
+            </div>
+
+            <div class="input-group">
+                <label>Enviar ticket por WhatsApp (Opcional):</label>
+                <div class="pago-controls">
+                    <span class="prefix">📱 +52</span>
+                    <!-- type="tel" abre el teclado numérico en el celular -->
+                    <input type="tel" id="input-whatsapp" placeholder="Ej. 951 123 4567">
+                </div>
+            </div>
+
+            <div class="modal-actions-column">
+                <button id="btn-cerrar-cuenta" class="btn-primary-green">Marcar como Pagada y Cerrar</button>
+            </div>
+        </div>
+    <script src="pos.js"></script>
+</div>
+</body>
+</html>

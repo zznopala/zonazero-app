@@ -1,0 +1,45 @@
+:root {
+    --primary-red: #dc3545;
+    --primary-green: #28a745;
+    --bg: #f4f6f9;
+    --card-bg: #ffffff;
+    --text: #333333;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+body { background-color: var(--bg); color: var(--text); padding-bottom: 30px; }
+
+.app-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px; background: var(--card-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.btn-secondary { background: #e2e3e5; color: var(--text); padding: 10px 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.btn-primary-green { background: var(--primary-green); color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; font-size: 1.1em; }
+
+/* Tarjeta del Total */
+.resumen-dia {
+    background: white; margin: 15px; padding: 20px; border-radius: 12px;
+    text-align: center; box-shadow: 0 4px 10px rgba(40, 167, 69, 0.15);
+    border-top: 5px solid var(--primary-green);
+}
+.resumen-dia h2 { color: #555; font-size: 1.2em; margin-bottom: 10px; }
+.monto-gigante { font-size: 2.8em; color: var(--primary-green); margin-bottom: 5px; }
+.resumen-dia p { color: #888; }
+
+/* Lista de Historial */
+.contenedor-lista { padding: 0 15px; }
+.contenedor-lista h3 { color: #555; margin-bottom: 10px; font-size: 1.1em; }
+
+.grid-container { display: flex; flex-direction: column; gap: 12px; }
+
+.card-historial {
+    background: var(--card-bg); padding: 15px; border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 4px solid #6c757d;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.card-info h4 { margin-bottom: 5px; color: var(--text); }
+.card-info p { font-size: 0.85em; color: #666; }
+.card-total { font-size: 1.2em; font-weight: bold; color: var(--text); }
+
+.empty-state { text-align: center; color: #999; font-style: italic; padding: 20px 0; }

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Administrar Menú</title>
+    <link rel="stylesheet" href="crud-style.css">
+</head>
+<body>
+    <header class="app-header">
+        <button onclick="window.location.href='index.html'" class="btn-secondary">← Volver</button>
+        <h1>Mi Menú</h1>
+        <button id="btn-nuevo-producto" class="btn-primary">+ Producto</button>
+    </header>
+
+    <div class="search-bar">
+        <input type="text" id="input-buscar" placeholder="Buscar producto...">
+    </div>
+
+    <main id="productos-container" class="grid-container"></main>
+
+    <div id="modal-producto" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="modal-titulo">Nuevo Producto</h2>
+            
+            <form id="form-producto">
+                <input type="hidden" id="prod-id">
+                
+                <label>Nombre del Producto:</label>
+                <input type="text" id="prod-nombre" required placeholder="Ej. Frappé">
+                
+                <div class="input-row">
+                    <div>
+                        <label>Costo ($):</label>
+                        <input type="number" id="prod-costo" step="0.50" required placeholder="0.00">
+                    </div>
+                    <div>
+                        <label>Precio Venta ($):</label>
+                        <input type="number" id="prod-precio" step="0.50" required placeholder="0.00">
+                    </div>
+                </div>
+
+                <label>Categoría:</label>
+                <input type="text" id="prod-categoria" required placeholder="Ej. Bebidas">
+
+                <div class="toggle-row">
+                    <label>¿Controlar Stock?</label>
+                    <input type="checkbox" id="prod-usa-stock">
+                </div>
+                
+                <div id="stock-container" class="hidden">
+                    <label>Stock Disponible:</label>
+                    <input type="number" id="prod-stock" value="0">
+                </div>
+
+                <div class="toggle-row">
+                    <label>Activo (Visible al vender):</label>
+                    <input type="checkbox" id="prod-activo" checked>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="btn-cancelar" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="crud.js"></script>
+</body>
+</html>

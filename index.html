@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POS Sistema Móvil</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="app-header">
+        <h1>Cuentas Activas</h1>
+        <!-- Botones de navegación para conectar toda la app -->
+        <div style="display: flex; gap: 10px;">
+            <button onclick="window.location.href='crud.html'" class="btn-secondary">Menú</button>
+            <button onclick="window.location.href='historial.html'" class="btn-secondary">Corte</button>
+        </div>
+    </header>
+
+    <!-- Botón grande para crear cuenta rápido -->
+    <div style="padding: 15px;">
+        <button id="btn-nueva-cuenta" class="btn-primary" style="width: 100%; padding: 15px; font-size: 1.2em;">+ Nueva Cuenta</button>
+    </div>
+
+    <main id="cuentas-container" class="grid-container"></main>
+
+    <div id="modal-cuenta" class="modal hidden">
+        <div class="modal-content">
+            <h2>Abrir Cuenta</h2>
+            <input type="text" id="input-nombre-mesa" placeholder="Nombre (ej. Mesa 1, Barra)">
+            <input type="text" id="input-descripcion" placeholder="Descripción (ej. Trae gorro, playera azul)">
+            <div class="modal-actions">
+                <button id="btn-cancelar-cuenta" class="btn-secondary">Cancelar</button>
+                <button id="btn-guardar-cuenta" class="btn-primary">Abrir</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-cobrar" class="modal hidden">
+        <div class="modal-content">
+            <h2>Cerrar Cuenta</h2>
+            <h3 id="cobrar-total">$0.00</h3>
+            
+            <label>División de Cuenta (Opcional):</label>
+            <input type="number" id="input-dividir" placeholder="¿Entre cuántos?">
+            <h4 id="cobrar-dividido" class="hidden">A pagar por persona: $0.00</h4>
+
+            <label>Paga con:</label>
+            <input type="number" id="input-pago" placeholder="Monto recibido">
+            <h3 id="cobrar-cambio">Cambio: $0.00</h3>
+
+            <div class="modal-actions">
+                <button id="btn-ticket-whatsapp" class="btn-whatsapp">Enviar Ticket WhatsApp</button>
+                <button id="btn-cerrar-final" class="btn-primary">Finalizar Venta</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

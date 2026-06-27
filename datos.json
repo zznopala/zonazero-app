@@ -1,0 +1,24 @@
+// Estructura de un Producto (Tabla Products)
+{
+  "id": "prod_123",
+  "name": "Café de Olla",
+  "costPrice": 15.00,
+  "salePrice": 35.00,
+  "useStock": false,
+  "stock": 0,
+  "active": true,
+  "category": "Bebidas"
+}
+
+// Estructura de una Cuenta/Mesa (Tabla Accounts)
+{
+  "id": "acc_456",
+  "name": "Mesa 3",
+  "description": "Chico de gorro rojo",
+  "status": "open", // open, closed, cancelled
+  "items": [
+    { "productId": "prod_123", "quantity": 2, "priceAtTime": 35.00 }
+  ],
+  "total": 70.00,
+  "splitTotal": null
+}

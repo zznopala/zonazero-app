@@ -1,0 +1,98 @@
+:root {
+    --primary-red: #dc3545; /* Acento Cafiguana */
+    --primary-green: #28a745; /* Acento Cafiguana */
+    --bg: #f4f6f9;
+    --card-bg: #ffffff;
+    --text: #333333;
+    --border: #e0e0e0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+body { background-color: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+.app-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px; background: var(--card-bg); border-bottom: 1px solid var(--border);
+}
+.app-header h1 { font-size: 1.2em; color: var(--primary-red); }
+.subtitle { font-size: 0.85em; color: #666; }
+
+button { border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; padding: 12px; }
+.btn-secondary { background: #e2e3e5; color: var(--text); }
+.btn-primary-red { background: var(--primary-red); color: white; width: 100%; font-size: 1.1em; }
+.btn-primary-red:disabled { background: #f5a3ab; cursor: not-allowed; }
+
+/* Layout Móvil/Desktop */
+.pos-layout { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+/* Sección Catálogo */
+.panel-productos { flex: 1; display: flex; flex-direction: column; background: var(--bg); padding: 10px; overflow-y: auto; }
+.categorias-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
+.btn-cat { white-space: nowrap; background: white; border: 1px solid var(--primary-green); color: var(--primary-green); border-radius: 20px; padding: 8px 15px; }
+.btn-cat.activo { background: var(--primary-green); color: white; }
+
+.grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+.btn-producto { background: white; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100px; padding: 10px; }
+.btn-producto .nombre { font-size: 0.9em; margin-bottom: 5px; text-align: center; line-height: 1.2; }
+.btn-producto .precio { color: var(--primary-green); font-weight: bold; }
+
+/* Sección Ticket */
+.panel-ticket { height: 45vh; background: white; border-top: 2px solid var(--border); display: flex; flex-direction: column; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+.ticket-header { padding: 10px 15px; border-bottom: 1px solid var(--border); background: #fafafa; }
+.ticket-header h2 { font-size: 1em; text-align: center; }
+
+.lista-orden { flex: 1; overflow-y: auto; padding: 10px 15px; }
+.item-orden { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--border); }
+.item-info { flex: 1; }
+.item-nombre { font-weight: bold; font-size: 0.95em; display: block; }
+.item-precio { font-size: 0.85em; color: #666; }
+
+/* Controles + / - */
+.controles-cant { display: flex; align-items: center; gap: 10px; background: var(--bg); border-radius: 20px; padding: 2px; }
+.btn-cant { width: 30px; height: 30px; border-radius: 50%; background: white; border: 1px solid #ccc; display: flex; justify-content: center; align-items: center; font-size: 1.2em; padding: 0; }
+.cant-numero { font-weight: bold; width: 20px; text-align: center; }
+
+.ticket-footer { padding: 15px; border-top: 1px solid var(--border); background: white; }
+.totales { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 1.2em; font-weight: bold; }
+.monto-total { color: var(--primary-green); font-size: 1.3em; }
+.empty-state { text-align: center; color: #999; margin-top: 20px; font-style: italic; }
+
+/* Estilos del Modal de Cobro */
+.modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: flex-end;
+    z-index: 100;
+}
+.modal.hidden { display: none !important; }
+
+.modal-content {
+    background: white; width: 100%; padding: 25px 20px;
+    border-radius: 20px 20px 0 0; animation: slideUp 0.3s ease-out;
+}
+
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.btn-close { background: none; color: #999; font-size: 1.5em; padding: 0 10px; }
+
+.cobro-resumen { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dashed var(--border); }
+.monto-gigante { font-size: 2.5em; color: var(--text); margin-top: 5px; }
+
+.input-group { margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 12px; }
+.input-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+
+/* Controles con prefijos (como el signo de $) para que se vea más profesional */
+.split-controls, .pago-controls { 
+    display: flex; align-items: center; background: white; border: 1px solid #ccc; border-radius: 8px; overflow: hidden; 
+}
+.split-controls input, .pago-controls input { 
+    border: none; margin: 0; padding: 15px 10px; font-size: 1.2em; flex: 1; outline: none; 
+}
+.prefix, .suffix { padding: 0 15px; background: #eee; color: #666; font-weight: bold; display: flex; align-items: center; align-self: stretch; }
+
+.texto-secundario { margin-top: 10px; font-size: 1.1em; color: #555; }
+.destaque-verde { color: var(--primary-green); font-size: 1.2em; }
+
+.monto-cambio { text-align: center; font-size: 1.8em; margin-top: 15px; padding: 10px; border-radius: 8px; background: #e8f5e9; color: var(--primary-green); }
+.monto-cambio.deuda { background: #ffebee; color: var(--primary-red); } /* Se pone rojo si falta dinero */
+
+.modal-actions-column { display: flex; flex-direction: column; gap: 12px; margin-top: 25px; }
+.btn-primary-green { background: var(--primary-green); color: white; width: 100%; padding: 15px; font-size: 1.2em; }
