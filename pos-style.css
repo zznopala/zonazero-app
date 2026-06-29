@@ -96,3 +96,73 @@ button { border: none; border-radius: 8px; cursor: pointer; font-weight: bold; f
 
 .modal-actions-column { display: flex; flex-direction: column; gap: 12px; margin-top: 25px; }
 .btn-primary-green { background: var(--primary-green); color: white; width: 100%; padding: 15px; font-size: 1.2em; }
+
+
+/* ========================================================
+   CORRECCIÓN DE SCROLL PARA CELULARES Y TABLETS
+   ======================================================== */
+@media (max-width: 768px) {
+    body {
+        /* dvh (Dynamic Viewport Height) se ajusta a las barras del navegador móvil */
+        height: 100dvh; 
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* Bloqueamos el scroll torpe de toda la página */
+    }
+
+    .app-header {
+        flex-shrink: 0; /* El encabezado queda fijo y no se aplasta */
+    }
+
+    .pos-layout {
+        display: flex;
+        flex-direction: column;
+        flex: 1; /* Toma el espacio restante debajo del header */
+        overflow: hidden;
+    }
+
+    /* --- Mitad Superior: Productos --- */
+    .panel-productos {
+        flex: 1.2; /* Le damos el 60% de la pantalla a los productos */
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    #categorias-container {
+        flex-shrink: 0; /* Las categorías quedan fijas */
+    }
+
+    .grid-productos {
+        flex: 1;
+        overflow-y: auto; /* SCROLL ACTIVO solo para los botones de productos */
+        padding-bottom: 10px;
+    }
+
+    /* --- Mitad Inferior: El Ticket --- */
+    .panel-ticket {
+        flex: 0.8; /* Le damos el 40% de la pantalla al ticket */
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border-top: 2px solid #ccc;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.05); /* Sombra para dividir */
+    }
+
+    .ticket-header {
+        flex-shrink: 0;
+    }
+
+    .lista-orden {
+        flex: 1;
+        overflow-y: auto; /* SCROLL ACTIVO solo para los productos agregados */
+        padding: 10px;
+    }
+
+    .ticket-footer {
+        flex-shrink: 0; /* ¡CLAVE! Evita que el Total y el botón se escondan */
+        padding-bottom: calc(env(safe-area-inset-bottom, 15px) + 10px); /* Evita que la barra de iPhone tape el botón */
+        background: #fff;
+    }
+}
