@@ -47,55 +47,54 @@
             </div>
         </section>
     </div>
-
-    <!-- Modal de Cobro -->
-    <div id="modal-cobrar" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Cerrar Mesa: <span id="cobro-nombre-mesa"></span></h2>
-                <button class="btn-close" onclick="cerrarModalCobro()">✕</button>
-            </div>
+<div id="modal-cobro" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 400px; padding: 20px; border-radius: 10px; max-height: 90vh; overflow-y: auto;">
+            <span class="close-btn" onclick="document.getElementById('modal-cobro').style.display='none'" style="float: right; font-size: 28px; cursor: pointer;">&times;</span>
             
-            <div class="cobro-resumen">
-                <p>Total de la cuenta:</p>
-                <h3 id="cobro-total-texto" class="monto-gigante">$0.00</h3>
-            </div>
-            
-            <div class="input-group">
-                <label>¿Dividir cuenta?</label>
-                <div class="split-controls">
-                    <span class="prefix">Entre:</span>
-                    <input type="number" id="input-dividir" placeholder="1" min="1" value="1">
-                    <span class="suffix">personas</span>
+            <h2 style="margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px;">Cobrar: <span id="nombre-mesa-cobro" style="color: #28a745;"></span></h2>
+
+            <div style="text-align: center; margin: 15px 0;">
+                <h3 style="margin: 0; color: #666; font-size: 1.1em;">Gran Total de la Mesa:</h3>
+                <div id="gran-total-mesa" style="font-size: 2.2em; font-weight: bold; color: #333;">$0.00</div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 0 10px;">
+                    <p style="color: #888; font-size: 0.9em; margin: 0;">Productos a cobrar:</p>
+                    <label style="cursor: pointer; color: #007bff; font-weight: bold; font-size: 0.9em;">
+                        <input type="checkbox" id="chk-seleccionar-todos" checked onchange="toggleSeleccionarTodos(this.checked)">
+                        Marcar todos
+                    </label>
                 </div>
-                <h4 id="cobro-dividido-texto" class="texto-secundario hidden">
-                    A pagar por persona: <span id="monto-dividido" class="destaque-verde">$0.00</span>
-                </h4>
+            </div>  
+
+            <div id="lista-productos-dividir" style="max-height: 180px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 15px; border-radius: 8px; background: #fff;">
+                </div>
+
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                <h3 style="margin: 0 0 10px 0; font-size: 1.1em; text-align: center;">Total a Cobrar Ahora:</h3>
+                <div id="total-a-cobrar-ahora" style="color: #e63946; font-size: 2em; font-weight: bold; text-align: center; margin-bottom: 15px;">$0.00</div>
+
+                <label style="display: block; font-weight: bold; color: #555;">¿Con cuánto pagan?</label>
+                <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                    <span style="font-size: 1.5em; color: #555;">$</span>
+                    <input type="number" id="monto-pago" placeholder="0.00" style="font-size: 1.3em; padding: 8px; width: 100%; border: 1px solid #ccc; border-radius: 5px;">
+                </div>
+
+                <div id="mensaje-cambio" style="font-size: 1.4em; font-weight: bold; text-align: center; margin-top: 15px; min-height: 30px;">
+                    </div>
             </div>
 
-            <div class="input-group">
-                <label>¿Con cuánto pagan?</label>
-                <div class="pago-controls">
-                    <span class="prefix">$</span>
-                    <input type="number" id="input-pago" placeholder="0.00" step="0.50">
-                </div>
-                <h3 id="cobro-cambio-texto" class="monto-cambio">Cambio: $0.00</h3>
-            </div>
-
-            <div class="input-group">
-                <label>Enviar ticket por WhatsApp (Opcional):</label>
-                <div class="pago-controls">
-                    <span class="prefix">📱 +52</span>
-                    <!-- type="tel" abre el teclado numérico en el celular -->
-                    <input type="tel" id="input-whatsapp" placeholder="Ej. 951 123 4567">
+            <div style="margin-top: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                <label style="display: block; font-weight: bold; color: #555; margin-bottom: 5px;">Enviar ticket por WhatsApp (Opcional):</label>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <span style="background: #e9ecef; border: 1px solid #ccc; padding: 8px 12px; border-radius: 5px; font-weight: bold; color: #495057; display: flex; align-items: center;">📱 +52</span>
+                    <input type="tel" id="telefono-whatsapp" placeholder="Ej. 951 123 4567" style="font-size: 1.2em; padding: 8px; width: 100%; border: 1px solid #ccc; border-radius: 5px;">
                 </div>
             </div>
 
-            <div class="modal-actions-column">
-                <button id="btn-cerrar-cuenta" class="btn-primary-green">Marcar como Pagada y Cerrar</button>
-            </div>
+            <button id="btn-confirmar-cobro" class="btn-primary-green" style="width: 100%; margin-top: 20px; font-size: 1.2em; padding: 15px; border-radius: 8px;">Cobrar Seleccionados</button>
         </div>
+    </div>
+    
     <script src="pos.js"></script>
-</div>
 </body>
 </html>

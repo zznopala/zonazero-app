@@ -1,8 +1,135 @@
 // Estado inicial simulando datos que ya podrías tener
 const defaultProducts = [
-    { id: 'p1', nombre: 'Café de Olla', costo: 15.00, precio: 35.00, categoria: 'Cafetería', usaStock: false, stock: 0, activo: true },
-    { id: 'p2', nombre: 'Crepa Dulce', costo: 20.00, precio: 50.00, categoria: 'Snacks', usaStock: true, stock: 15, activo: true },
-    { id: 'p3', nombre: 'Soda Italiana', costo: 18.00, precio: 45.00, categoria: 'Bebidas', usaStock: false, stock: 0, activo: true }
+    {
+        "id": "prod_1782691538246",
+        "nombre": "Maruchan",
+        "costo": 15,
+        "precio": 30,
+        "categoria": "Snacks",
+        "usaStock": true,
+        "stock": 17,
+        "activo": true
+    },
+    {
+        "id": "prod_1782691552345",
+        "nombre": "Palomitas",
+        "costo": 13,
+        "precio": 25,
+        "categoria": "Snacks",
+        "usaStock": false,
+        "stock": 0,
+        "activo": true
+    },
+    {
+        "id": "prod_1782691592476",
+        "nombre": "Coca Cola",
+        "costo": 16,
+        "precio": 25,
+        "categoria": "Bebidas",
+        "usaStock": false,
+        "stock": 0,
+        "activo": true
+    },
+    {
+        "id": "prod_1782704735663",
+        "nombre": "Corona Zero 370 ml",
+        "costo": 20,
+        "precio": 25,
+        "categoria": "Bebidas",
+        "usaStock": false,
+        "stock": 0,
+        "activo": true
+    },
+    {
+        "id": "prod_1782705819249",
+        "nombre": "Billar 30 min",
+        "costo": 0,
+        "precio": 30,
+        "categoria": "Juegos",
+        "usaStock": false,
+        "stock": 0,
+        "activo": true
+    },
+    {
+        "id": "prod_1782705844255",
+        "nombre": "Billar 1Hora",
+        "costo": 0,
+        "precio": 50,
+        "categoria": "Juegos",
+        "usaStock": false,
+        "stock": 0,
+        "activo": true
+    },
+    {
+        "id": "prod_1782706392665",
+        "nombre": "Agua de Mango",
+        "costo": 10,
+        "precio": 30,
+        "categoria": "Bebidas",
+        "usaStock": false,
+        "stock": 0,
+        "activo": true
+    },
+    {
+        "id": "prod_1782706392665",
+        "nombre": "Agua de Plátano",
+        "costo": 10,
+        "precio": 30,
+        "categoria": "Bebidas",
+        "usaStock": false,
+        "stock": 0,
+        "activo": true
+    },
+    {
+        "id": "prod_1782706392665",
+        "nombre": "Agua de Nuez",
+        "costo": 10,
+        "precio": 30,
+        "categoria": "Bebidas",
+        "usaStock": false,
+        "stock": 0,
+        "activo": true
+    },
+    {
+        "id": "prod_1782706392665",
+        "nombre": "Agua de Horchata",
+        "costo": 10,
+        "precio": 30,
+        "categoria": "Bebidas",
+        "usaStock": false,
+        "stock": 0,
+        "activo": true
+    },
+    {
+        "id": "prod_1782711129599",
+        "nombre": "Billar 1/2 Desp de 1H",
+        "costo": 0,
+        "precio": 25,
+        "categoria": "Juegos",
+        "usaStock": false,
+        "stock": 0,
+        "activo": true
+    },
+    {
+        "id": "prod_1782758063240",
+        "nombre": "Agua Fresa",
+        "costo": 20,
+        "precio": 30,
+        "categoria": "Bebidas",
+        "usaStock": false,
+        "stock": 0,
+        "activo": true
+    },
+    {
+        "id": "prod_1782761456476",
+        "nombre": "LIQUIDAR",
+        "costo": 0,
+        "precio": 0,
+        "categoria": "NONE",
+        "usaStock": false,
+        "stock": 0,
+        "activo": true
+    }
 ];
 
 let productos = JSON.parse(localStorage.getItem('productos')) || defaultProducts;

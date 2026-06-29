@@ -1,100 +1,73 @@
-// Cargar cuentas del localStorage
-let cuentas = JSON.parse(localStorage.getItem('cuentas')) || [];
+// Ejecutar cuando el documento esté listo
+document.addEventListener('DOMContentLoaded', cargarHistorial);
 
-const renderHistorial = () => {
-    const container = document.getElementById('historial-container');
-    const textoVentas = document.getElementById('cantidad-ventas');
+function cargarHistorial() {
+    // 1. Obtener el historial de la memoria (Si no hay, usamos un arreglo vacío)
+    const historialVentas = JSON.parse(localStorage.getItem('historial_ventas')) || [];
+    const contenedorLista = document.getElementById('lista-historial');
     
-    // CONEXIONES HTML: Vinculamos todos los IDs que tienes en tu historial.html
-    const textoTotalGigante = document.getElementById('total-dia-texto');   // El monto de arriba
-    const textoTotalCaja = document.getElementById('total-vendido');       // El "Total en Caja" de la caja blanca
-    const textoGananciaNeta = document.getElementById('ganancia-neta');     // La "Ganancia Neta" verde de la caja blanca
-    const textoGananciaDia = document.getElementById('ganancia-dia-texto');   // El texto de abajo
-    
-    container.innerHTML = '';
-    let sumaTotal = 0;
-    let sumaGanancia = 0; 
+    let totalAcumulado = 0;
+    contenedorLista.innerHTML = ""; // Limpiar antes de pintar
 
-    // Filtrar solo las cuentas con estado 'closed'
-    const cerradas = cuentas.filter(c => c.status === 'closed');
-
-    if (cerradas.length === 0) {
-        container.innerHTML = '<div class="empty-state">No hay ventas registradas en este turno.</div>';
-        
-        // Si no hay ventas, ponemos absolutamente todo en $0.00
-        if (textoTotalGigante) textoTotalGigante.innerText = '$0.00';
-        if (textoTotalCaja) textoTotalCaja.innerText = '$0.00';
-        if (textoGananciaNeta) textoGananciaNeta.innerText = '$0.00';
-        if (textoGananciaDia) textoGananciaDia.innerText = '$0.00';
-        
-        textoVentas.innerText = '0 ventas completadas';
-        document.getElementById('btn-corte').disabled = true;
-        document.getElementById('btn-corte').style.background = '#ccc';
+    // 2. Verificar si está vacío
+    if (historialVentas.length === 0) {
+        contenedorLista.innerHTML = `
+            <div style="padding: 30px; text-align: center; color: #888;">
+                No hay cobros registrados aún.
+            </div>`;
+        actualizarTotales(0, 0);
         return;
     }
 
-    // Invertir el arreglo para ver las ventas más recientes primero
-    cerradas.slice().reverse().forEach(cuenta => {
-        sumaTotal += cuenta.total;
+    // 3. Recorrer cada transacción (incluso las divididas) para pintarlas y sumarlas
+    historialVentas.forEach(transaccion => {
+        totalAcumulado += transaccion.monto;
 
-        // Entramos a los productos de esta cuenta para calcular la ganancia
-        if (cuenta.items) {
-            cuenta.items.forEach(item => {
-                const venta = item.priceAtTime || 0;
-                const costo = item.costAtTime || 0; // Viene desde pos.js
-                const cantidad = item.quantity || 1;
-                
-                // (Precio Venta - Precio Costo) * Cantidad
-                sumaGanancia += (venta - costo) * cantidad;
-            });
-        }
-
-        // Extraer la hora del ID (formato: acc_17145839293)
-        let horaTexto = "Hora desconocida";
-        if (cuenta.id.startsWith('acc_')) {
-            const timestamp = parseInt(cuenta.id.split('_')[1]);
-            const fecha = new Date(timestamp);
-            horaTexto = fecha.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-
-        const div = document.createElement('div');
-        div.className = 'card-historial';
-        div.innerHTML = `
-            <div class="card-info">
-                <h4>${cuenta.name}</h4>
-                <p>Abierta a las: ${horaTexto} • ${cuenta.items.length} productos</p>
+        // Crear el elemento visual para la lista
+        let fila = document.createElement('div');
+        fila.className = "item-transaccion";
+        
+        fila.innerHTML = `
+            <div>
+                <strong style="font-size: 1.1em; color: #333;">${transaccion.mesa}</strong>
+                <div style="color: #888; font-size: 0.9em; margin-top: 4px;">
+                    Hora: ${transaccion.fecha} | Tipo: ${transaccion.tipo}
+                </div>
             </div>
-            <div class="card-total">
-                $${cuenta.total.toFixed(2)}
+            <div class="monto-transaccion">
+                $${transaccion.monto.toFixed(2)}
             </div>
         `;
-        container.appendChild(div);
+        
+        contenedorLista.appendChild(fila);
     });
 
-    // IMPRESIÓN DE RESULTADOS: Actualizamos cada rincón de la pantalla
-    if (textoTotalGigante) textoTotalGigante.innerText = `$${sumaTotal.toFixed(2)}`;
-    if (textoTotalCaja) textoTotalCaja.innerText = `$${sumaTotal.toFixed(2)}`;
-    if (textoGananciaNeta) textoGananciaNeta.innerText = `$${sumaGanancia.toFixed(2)}`;
-    if (textoGananciaDia) textoGananciaDia.innerText = `$${sumaGanancia.toFixed(2)}`;
-    
-    textoVentas.innerText = `${cerradas.length} ventas completadas`;
-};
+    // 4. Actualizar los números grandotes de arriba
+    actualizarTotales(totalAcumulado, historialVentas.length);
+}
 
-// Lógica del botón "Hacer Corte de Caja"
-document.getElementById('btn-corte').addEventListener('click', () => {
-    if (confirm('¿Estás seguro de hacer el corte de caja? Esto limpiará el historial de ventas para empezar un nuevo turno.')) {
+function actualizarTotales(total, cantidad) {
+    document.getElementById('gran-total-corte').innerText = `$${total.toFixed(2)}`;
+    document.getElementById('total-operaciones').innerText = cantidad;
+}
+
+// Lógica para el botón de Cerrar Caja / Limpiar
+document.getElementById('btn-limpiar-historial').addEventListener('click', function() {
+    const historialVentas = JSON.parse(localStorage.getItem('historial_ventas')) || [];
+    
+    if (historialVentas.length === 0) {
+        alert("La caja ya está vacía.");
+        return;
+    }
+
+    const confirmar = confirm("¿Estás seguro de cerrar la caja? Esto borrará el historial de cobros actual de la pantalla para empezar uno nuevo.");
+    
+    if (confirmar) {
+        // Borramos el registro específico de ventas
+        localStorage.removeItem('historial_ventas');
         
-        // Conservar solo las cuentas que aún están 'open'
-        cuentas = cuentas.filter(c => c.status !== 'closed');
-        
-        // Guardar el nuevo estado en localStorage
-        localStorage.setItem('cuentas', JSON.stringify(cuentas));
-        
-        // Refrescar la vista
-        renderHistorial();
-        alert('Corte de caja realizado con éxito. ¡Buen trabajo hoy!');
+        // Recargamos la interfaz para que quede en ceros
+        cargarHistorial();
+        alert("Caja cerrada exitosamente. El historial ha sido limpiado.");
     }
 });
-
-// Iniciar al cargar la pantalla
-renderHistorial();

@@ -1,33 +1,28 @@
-// Recuperamos datos de localStorage
+// ==========================================
+// CONFIGURACIÓN E INICIALIZACIÓN DE DATOS
+// ==========================================
 let productos = JSON.parse(localStorage.getItem('productos')) || [];
 let cuentas = JSON.parse(localStorage.getItem('cuentas')) || [];
 
-// Simulamos que el usuario seleccionó una cuenta desde la pantalla principal
-// (En la práctica, pasarías este ID por URL o mediante el estado de la app)
 let cuentaActivaId = localStorage.getItem('cuentaActivaId'); 
 let cuentaActiva = cuentas.find(c => c.id === cuentaActivaId);
 
-// ==========================================
-// 1. INICIALIZACIÓN
-// ==========================================
 const iniciarPOS = () => {
     if (!cuentaActiva) {
         alert("Error: No hay cuenta seleccionada.");
-        // window.location.href = 'index.html'; // Descomentar para producción
         return;
     }
 
     document.getElementById('nombre-mesa-activa').innerText = cuentaActiva.name;
     document.getElementById('desc-mesa-activa').innerText = cuentaActiva.description || '';
 
-    // Filtrar solo productos activos
     const productosActivos = productos.filter(p => p.activo);
     renderizarCatalogo(productosActivos);
     renderizarTicket();
 };
 
 // ==========================================
-// 2. RENDERIZAR CATÁLOGO DE PRODUCTOS
+// RENDERIZAR CATÁLOGO DE PRODUCTOS
 // ==========================================
 const renderizarCatalogo = (listaProductos) => {
     const grid = document.getElementById('grid-productos');
@@ -47,11 +42,9 @@ const renderizarCatalogo = (listaProductos) => {
 };
 
 window.filtrarCat = (categoria) => {
-    // Actualizar botones visualmente
     document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('activo'));
-    event.target.classList.add('activo');
+    if (event && event.target) event.target.classList.add('activo');
 
-    // Filtrar productos
     let activos = productos.filter(p => p.activo);
     if (categoria !== 'Todas') {
         activos = activos.filter(p => p.categoria.toLowerCase() === categoria.toLowerCase());
@@ -60,29 +53,26 @@ window.filtrarCat = (categoria) => {
 };
 
 // ==========================================
-// 3. LÓGICA DEL TICKET (Agregar, Sumar, Restar)
+// LÓGICA DEL TICKET (Agregar, Sumar, Restar)
 // ==========================================
-
 let productoSeleccionado = null;
 let seleccionVariantes = [];
 
 const agregarProducto = (prod) => {
-    // Verificamos si el producto tiene variantes configuradas
     if (prod.variantes && prod.variantes.length > 0) {
         productoSeleccionado = prod;
-        seleccionVariantes = []; // Reseteamos selecciones anteriores
-        abrirModalModificadores(prod);
+        seleccionVariantes = []; 
+        if (typeof abrirModalModificadores === 'function') {
+            abrirModalModificadores(prod);
+        }
     } else {
-        // Si es un producto normal (sin variantes), se agrega directamente
         cuentaActiva.items.push({
-            productId: prod.id,
+            productId: prod.id || 'prod_' + Date.now() + Math.random().toString(36).substr(2, 5),
             nombre: prod.nombre,
-            priceAtTime: parseFloat(prod.precio) || parseFloat(prod.precioVenta), 
-            costAtTime: parseFloat(prod.costo) || 0, // Guardamos el costo para calcular ganancias
+            priceAtTime: parseFloat(prod.precio) || parseFloat(prod.precioVenta) || 0, 
+            costAtTime: parseFloat(prod.costo) || 0, 
             quantity: 1
         });
-        
-        // Guardamos en memoria y refrescamos la pantalla
         guardarYActualizar();
     }
 };
@@ -91,8 +81,6 @@ window.modificarCantidad = (productId, delta) => {
     const index = cuentaActiva.items.findIndex(i => i.productId === productId);
     if (index !== -1) {
         cuentaActiva.items[index].quantity += delta;
-        
-        // Si llega a 0, lo eliminamos de la cuenta
         if (cuentaActiva.items[index].quantity <= 0) {
             cuentaActiva.items.splice(index, 1);
         }
@@ -101,15 +89,13 @@ window.modificarCantidad = (productId, delta) => {
 };
 
 const guardarYActualizar = () => {
-    // Calcular nuevo total
     cuentaActiva.total = cuentaActiva.items.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
     
-    // Guardar en localStorage
     const cuentaIndex = cuentas.findIndex(c => c.id === cuentaActivaId);
-    cuentas[cuentaIndex] = cuentaActiva;
+    if (cuentaIndex !== -1) {
+        cuentas[cuentaIndex] = cuentaActiva;
+    }
     localStorage.setItem('cuentas', JSON.stringify(cuentas));
-
-    // Refrescar UI
     renderizarTicket();
 };
 
@@ -118,11 +104,11 @@ const renderizarTicket = () => {
     const btnCobrar = document.getElementById('btn-cobrar');
     lista.innerHTML = '';
 
-    if (cuentaActiva.items.length === 0) {
+    if (!cuentaActiva || cuentaActiva.items.length === 0) {
         lista.innerHTML = '<div class="empty-state">Agrega productos tocando los botones de arriba.</div>';
-        btnCobrar.disabled = true;
+        if (btnCobrar) btnCobrar.disabled = true;
     } else {
-        btnCobrar.disabled = false;
+        if (btnCobrar) btnCobrar.disabled = false;
         
         cuentaActiva.items.forEach(item => {
             const div = document.createElement('div');
@@ -144,10 +130,12 @@ const renderizarTicket = () => {
         });
     }
 
-    document.getElementById('gran-total').innerText = `$${cuentaActiva.total.toFixed(2)}`;
+    const totalElement = document.getElementById('gran-total');
+    if (totalElement) {
+        totalElement.innerText = `$${(cuentaActiva?.total || 0).toFixed(2)}`;
+    }
 };
 
-// Test Rápido: Si no hay cuenta activa en localStorage, creamos una de prueba
 if (!cuentaActivaId) {
     const cuentaPrueba = { id: 'test_1', name: 'Mesa Prueba', description: 'Test', status: 'open', items: [], total: 0 };
     cuentas.push(cuentaPrueba);
@@ -158,149 +146,330 @@ if (!cuentaActivaId) {
 }
 
 // ==========================================
-// 4. LÓGICA DE COBRO, DIVISIÓN Y CAMBIO
+// NUEVO MOTOR DE COBRO SELECCIONABLE Y PARCIAL
 // ==========================================
+const btnCobrarOriginal = document.getElementById('btn-cobrar');
+let totalCobrarPersonaActual = 0;
 
-const modalCobrar = document.getElementById('modal-cobrar');
-const inputDividir = document.getElementById('input-dividir');
-const inputPago = document.getElementById('input-pago');
-const btnCobrar = document.getElementById('btn-cobrar'); // El botón rojo del ticket
+if (btnCobrarOriginal) {
+    btnCobrarOriginal.addEventListener('click', () => {
+        const modalNuevo = document.getElementById('modal-cobro');
+        if (!modalNuevo) return;
 
-// Variables de estado temporal para el cobro
-let montoAPagarActual = 0; 
+        document.getElementById('nombre-mesa-cobro').innerText = cuentaActiva.name;
+        
+        // Mostrar Gran Total de la mesa bien grande
+        const granTotalMesa = cuentaActiva.items.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
+        document.getElementById('gran-total-mesa').innerText = `$${granTotalMesa.toFixed(2)}`;
 
-// Abrir el modal al tocar "Cobrar / Cerrar Mesa"
-btnCobrar.addEventListener('click', () => {
-    document.getElementById('cobro-nombre-mesa').innerText = cuentaActiva.name;
-    document.getElementById('cobro-total-texto').innerText = `$${cuentaActiva.total.toFixed(2)}`;
-    
-    // Reiniciar inputs
-    inputDividir.value = 1;
-    inputPago.value = '';
-    montoAPagarActual = cuentaActiva.total;
-    
-    document.getElementById('cobro-dividido-texto').classList.add('hidden');
-    calcularCambio(); // Resetea la vista del cambio
+        // Limpiar campos de control
+        document.getElementById('monto-pago').value = '';
+        document.getElementById('mensaje-cambio').innerHTML = '';
 
-    document.getElementById('input-whatsapp').value = '';
-    
-    modalCobrar.classList.remove('hidden');
-});
+        // Construir lista con checkboxes para seleccionar artículos
+        const listaDiv = document.getElementById('lista-productos-dividir');
+        listaDiv.innerHTML = ''; 
 
-window.cerrarModalCobro = () => {
-    modalCobrar.classList.add('hidden');
-};
+        cuentaActiva.items.forEach((item, index) => {
+            const subtotalItem = item.priceAtTime * item.quantity;
+            const div = document.createElement('div');
+            div.style.padding = '8px';
+            div.style.borderBottom = '1px solid #eee';
+            div.innerHTML = `
+                <label style="cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 1.1em; width: 100%;">
+                    <input type="checkbox" class="chk-item-cobro" data-index="${index}" data-precio="${subtotalItem}" checked style="width: 22px; height: 22px; cursor: pointer;">
+                    <span style="flex-grow: 1;">${item.quantity}x ${item.nombre}</span>
+                    <strong style="color: #333;">$${subtotalItem.toFixed(2)}</strong>
+                </label>
+            `;
+            listaDiv.appendChild(div);
+        });
 
-// --- EL MOTOR MATEMÁTICO ---
+        // Vincular cálculos automáticos en tiempo real
+        document.querySelectorAll('.chk-item-cobro').forEach(chk => {
+            chk.addEventListener('change', recalcularTotalCobro);
+        });
+        document.getElementById('monto-pago').addEventListener('input', recalcularTotalCobro);
 
-// 1. Escuchar cambios en la división de cuenta
-inputDividir.addEventListener('input', () => {
-    let divisor = parseInt(inputDividir.value);
-    const textoDividido = document.getElementById('cobro-dividido-texto');
-    const montoDivididoSpan = document.getElementById('monto-dividido');
-
-    // Validar que no dividan entre 0 o negativo
-    if (isNaN(divisor) || divisor < 1) {
-        divisor = 1;
-    }
-
-    if (divisor > 1) {
-        // Lógica: Total / Número de personas
-        montoAPagarActual = cuentaActiva.total / divisor;
-        montoDivididoSpan.innerText = `$${montoAPagarActual.toFixed(2)}`;
-        textoDividido.classList.remove('hidden');
-    } else {
-        // Lógica: 1 sola persona paga todo
-        montoAPagarActual = cuentaActiva.total;
-        textoDividido.classList.add('hidden');
-    }
-
-    // Recalcular el cambio automáticamente si ya habían puesto un billete
-    calcularCambio();
-});
-
-// 2. Escuchar cambios en el billete con el que pagan
-inputPago.addEventListener('input', calcularCambio);
-
-function calcularCambio() {
-    const textoCambio = document.getElementById('cobro-cambio-texto');
-    let montoRecibido = parseFloat(inputPago.value);
-
-    // Si el input está vacío, no mostrar cambio aún
-    if (isNaN(montoRecibido)) {
-        textoCambio.innerText = 'Cambio: $0.00';
-        textoCambio.classList.remove('deuda');
-        return;
-    }
-
-    // Lógica: Cambio = Recibido - A Pagar
-    let cambio = montoRecibido - montoAPagarActual;
-
-    if (cambio < 0) {
-        // Falta dinero (Rojo)
-        textoCambio.innerText = `Faltan: $${Math.abs(cambio).toFixed(2)}`;
-        textoCambio.classList.add('deuda');
-    } else {
-        // Sobra dinero (Cambio normal - Verde)
-        textoCambio.innerText = `Cambio: $${cambio.toFixed(2)}`;
-        textoCambio.classList.remove('deuda');
-    }
+        recalcularTotalCobro();
+        modalNuevo.style.display = 'block';
+    });
 }
 
-// 3. Botón Final: Cerrar la cuenta y generar WhatsApp
-// 3. Botón Final: Cerrar la cuenta y generar WhatsApp
-document.getElementById('btn-cerrar-cuenta').addEventListener('click', () => {
-    // 1. Buscar la cuenta y cambiar estado a cerrada
-    const cuentaIndex = cuentas.findIndex(c => c.id === cuentaActivaId);
-    if (cuentaIndex !== -1) {
-        cuentas[cuentaIndex].status = 'closed';
-        localStorage.setItem('cuentas', JSON.stringify(cuentas));
-    }
-
-    // 2. Construir el Ticket
-    let ticket = `*Ticket - Z🎱NAZER🧊*\n`;
-    ticket += `Mesa/Cliente: ${cuentaActiva.name}\n`;
-    ticket += `------------------------\n`;
+const recalcularTotalCobro = () => {
+    totalCobrarPersonaActual = 0;
     
-    cuentaActiva.items.forEach(item => {
-        const subtotal = item.priceAtTime * item.quantity;
-        ticket += `${item.quantity}x ${item.nombre} - $${subtotal.toFixed(2)}\n`;
+    document.querySelectorAll('.chk-item-cobro:checked').forEach(chk => {
+        totalCobrarPersonaActual += parseFloat(chk.getAttribute('data-precio'));
     });
-    
-    ticket += `------------------------\n`;
-    ticket += `*Total: $${cuentaActiva.total.toFixed(2)}*\n`;
 
-    const divisor = parseInt(document.getElementById('input-dividir').value) || 1;
-    if (divisor > 1) {
-        ticket += `(Dividido entre ${divisor} personas: $${(cuentaActiva.total / divisor).toFixed(2)} c/u)\n`;
+    document.getElementById('total-a-cobrar-ahora').innerText = `$${totalCobrarPersonaActual.toFixed(2)}`;
+
+    const pago = parseFloat(document.getElementById('monto-pago').value) || 0;
+    const mensajeDiv = document.getElementById('mensaje-cambio');
+
+    if (pago > 0) {
+        if (pago >= totalCobrarPersonaActual) {
+            mensajeDiv.innerHTML = `<span style="color: #28a745;">Cambio: $${(pago - totalCobrarPersonaActual).toFixed(2)}</span>`;
+        } else {
+            mensajeDiv.innerHTML = `<span style="color: #dc3545;">Faltan: $${(totalCobrarPersonaActual - pago).toFixed(2)}</span>`;
+        }
+    } else {
+        mensajeDiv.innerHTML = ''; 
     }
+};
 
-    const montoRecibido = parseFloat(document.getElementById('input-pago').value);
-    if (!isNaN(montoRecibido)) {
-        ticket += `Pago con: $${montoRecibido.toFixed(2)}\n`;
-        const cambioTotal = montoRecibido - (cuentaActiva.total / divisor);
-        ticket += `Cambio: $${cambioTotal.toFixed(2)}\n`;
-    }
+function toggleSeleccionarTodos(marcar) {
+    // 1. Buscamos todos los checkboxes individuales dentro de la lista
+    const checkboxes = document.querySelectorAll('#lista-productos-dividir input[type="checkbox"]');
     
-    ticket += `\n¡Gracias por tu preferencia! 🎱🧊`;
+    // 2. Recorremos cada uno y le asignamos el mismo estado que la casilla maestra
+    checkboxes.forEach(chk => {
+        chk.checked = marcar;
+        
+        // 3. ¡Súper importante! Simulamos un clic en cada uno para que 
+        // tu sistema recalcule el "Total a Cobrar Ahora" automáticamente.
+        chk.dispatchEvent(new Event('change'));
+    });
+}
 
-    // 3. Lógica directa de WhatsApp
-    // Obtenemos el número del input y le quitamos los espacios vacíos
-    let numeroCliente = document.getElementById('input-whatsapp').value.replace(/\s+/g, '');
-    
-    // Si escribiste un número, abrimos WhatsApp directo a ese número
-    if (numeroCliente !== "") {
-        // Agregamos el 52 (Código de México) directamente al enlace
-        const url = `https://wa.me/52${numeroCliente}?text=${encodeURIComponent(ticket)}`;
-        window.open(url, '_blank');
-    }
+// Confirmar cobro y despacho a base de datos / WhatsApp
+const btnConfirmarCobro = document.getElementById('btn-confirmar-cobro');
+if (btnConfirmarCobro) {
+    btnConfirmarCobro.addEventListener('click', () => {
+        const checkboxes = document.querySelectorAll('.chk-item-cobro');
+        const indicesPagados = [];
+        const indicesRestantes = [];
 
-    // 4. Limpiar la mesa activa y regresar al inicio
-    localStorage.removeItem('cuentaActivaId');
-    window.location.href = 'index.html'; 
+        checkboxes.forEach(chk => {
+            const idx = parseInt(chk.getAttribute('data-index'));
+            if (chk.checked) indicesPagados.push(idx);
+            else indicesRestantes.push(idx);
+        });
 
-    
-});
+        if (indicesPagados.length === 0) {
+            alert("Selecciona al menos un producto.");
+            return;
+        }
 
+        const itemsPagados = indicesPagados.map(i => cuentaActiva.items[i]);
+        const itemsPendientes = indicesRestantes.map(i => cuentaActiva.items[i]);
+        const montoCobrado = totalCobrarPersonaActual;
+
+        // --- 1. GUARDAR EN HISTÓRICO (Para que el corte de caja sume todo) ---
+        let historialVentas = JSON.parse(localStorage.getItem('historial_ventas')) || [];
+        historialVentas.push({
+            id: 'trans_' + Date.now(),
+            mesa: cuentaActiva.name,
+            monto: montoCobrado,
+            fecha: new Date().toLocaleTimeString(),
+            tipo: "Cobro Parcial/Total"
+        });
+        localStorage.setItem('historial_ventas', JSON.stringify(historialVentas));
+
+        // --- 2. GENERAR MENSAJE Y ENVIAR WHATSAPP ---
+        let ticket = `*Ticket - Z🎱NAZER🧊*\n*Mesa: ${cuentaActiva.name}*\n------------------------\n`;
+        itemsPagados.forEach(item => {
+            ticket += `${item.quantity}x ${item.nombre} - $${(item.priceAtTime * item.quantity).toFixed(2)}\n`;
+        });
+        ticket += `------------------------\n*Total Pagado: $${montoCobrado.toFixed(2)}*\n\n¡Gracias! 🎱🧊`;
+
+        // Busca el input donde el usuario pone el teléfono en el modal
+        const inputWS = document.getElementById('telefono-whatsapp'); 
+        if (inputWS && inputWS.value.trim() !== "") {
+            let numero = inputWS.value.replace(/\D/g, '');
+            window.open(`https://wa.me/52${numero}?text=${encodeURIComponent(ticket)}`, '_blank');
+        }
+
+        // --- 3. ACTUALIZAR CUENTA Y CERRAR ---
+        const cuentaIndex = cuentas.findIndex(c => c.id === cuentaActivaId);
+        
+        if (itemsPendientes.length === 0) {
+            cuentas[cuentaIndex].status = 'closed';
+            localStorage.removeItem('cuentaActivaId');
+            localStorage.setItem('cuentas', JSON.stringify(cuentas));
+            alert(`Mesa liquidada: $${montoCobrado.toFixed(2)}`);
+            window.location.href = 'index.html';
+        } else {
+            cuentaActiva.items = itemsPendientes;
+            cuentaActiva.total = itemsPendientes.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
+            cuentas[cuentaIndex] = cuentaActiva;
+            localStorage.setItem('cuentas', JSON.stringify(cuentas));
+            
+            document.getElementById('modal-cobro').style.display = 'none';
+            renderizarTicket(); // Corregido: antes tenías un error de dedo "renderizerTicket"
+            iniciarPOS();
+        }
+    });
+}
+
+/*const btnConfirmarCobro = document.getElementById('btn-confirmar-cobro');
+if (btnConfirmarCobro) {
+    btnConfirmarCobro.addEventListener('click', () => {
+        const checkboxes = document.querySelectorAll('.chk-item-cobro');
+        const indicesPagados = [];
+        const indicesRestantes = [];
+
+        checkboxes.forEach(chk => {
+            const idx = parseInt(chk.getAttribute('data-index'));
+            if (chk.checked) indicesPagados.push(idx);
+            else indicesRestantes.push(idx);
+        });
+
+        if (indicesPagados.length === 0) {
+            alert("Selecciona al menos un producto.");
+            return;
+        }
+
+        const itemsPagados = indicesPagados.map(i => cuentaActiva.items[i]);
+        const itemsPendientes = indicesRestantes.map(i => cuentaActiva.items[i]);
+        const montoCobrado = totalCobrarPersonaActual;
+
+        // --- 1. GUARDAR EN HISTÓRICO (Para que el corte de caja sume todo) ---
+        let historialVentas = JSON.parse(localStorage.getItem('historial_ventas')) || [];
+        historialVentas.push({
+            id: 'trans_' + Date.now(),
+            mesa: cuentaActiva.name,
+            monto: montoCobrado,
+            fecha: new Date().toLocaleTimeString(),
+            tipo: "Cobro Parcial/Total"
+        });
+        localStorage.setItem('historial_ventas', JSON.stringify(historialVentas));
+
+        // --- 2. GENERAR MENSAJE Y ENVIAR WHATSAPP ---
+        let ticket = `*Ticket - Z🎱NAZER🧊*\n*Mesa: ${cuentaActiva.name}*\n------------------------\n`;
+        itemsPagados.forEach(item => {
+            ticket += `${item.quantity}x ${item.nombre} - $${(item.priceAtTime * item.quantity).toFixed(2)}\n`;
+        });
+        ticket += `------------------------\n*Total Pagado: $${montoCobrado.toFixed(2)}*\n\n¡Gracias! 🎱🧊`;
+
+        // Busca el input donde el usuario pone el teléfono en el modal
+        const inputWS = document.getElementById('telefono-whatsapp'); 
+        if (inputWS && inputWS.value.trim() !== "") {
+            let numero = inputWS.value.replace(/\D/g, '');
+            window.open(`https://wa.me/52${numero}?text=${encodeURIComponent(ticket)}`, '_blank');
+        }
+
+        // --- 3. ACTUALIZAR CUENTA Y CERRAR ---
+        const cuentaIndex = cuentas.findIndex(c => c.id === cuentaActivaId);
+        
+        if (itemsPendientes.length === 0) {
+            cuentas[cuentaIndex].status = 'closed';
+            localStorage.removeItem('cuentaActivaId');
+            alert(`Mesa liquidada: $${montoCobrado.toFixed(2)}`);
+            window.location.href = 'index.html';
+        } else {
+            cuentaActiva.items = itemsPendientes;
+            cuentaActiva.total = itemsPendientes.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
+            cuentas[cuentaIndex] = cuentaActiva;
+            localStorage.setItem('cuentas', JSON.stringify(cuentas));
+            
+            document.getElementById('modal-cobro').style.display = 'none';
+            renderizarTicket(); // Corregido: antes tenías un error de dedo "renderizerTicket"
+            iniciarPOS();
+        }
+    });
+}
+
+const btnConfirmarCobro = document.getElementById('btn-confirmar-cobro');
+
+if (btnConfirmarCobro) {
+    btnConfirmarCobro.addEventListener('click', () => {
+       
+        const checkboxes = document.querySelectorAll('.chk-item-cobro');
+        const indicesPagados = [];
+        const indicesRestantes = [];
+
+        checkboxes.forEach(chk => {
+            const idx = parseInt(chk.getAttribute('data-index'));
+            if (chk.checked) {
+                indicesPagados.push(idx);
+            } else {
+                indicesRestantes.push(idx);
+            }
+        });
+
+        if (indicesPagados.length === 0) {
+            alert("Por favor, selecciona al menos un producto para proceder con el cobro.");
+            return;
+        }
+
+        const itemsPagados = indicesPagados.map(i => cuentaActiva.items[i]);
+        const itemsPendientes = indicesRestantes.map(i => cuentaActiva.items[i]);
+
+        // ==========================================
+        // GENERACIÓN DINÁMICA DEL TICKET DE WHATSAPP
+        // ==========================================
+        let ticket = `*Ticket - Z🎱NAZER🧊*\n`;
+        if (itemsPendientes.length > 0) {
+            ticket += `Mesa/Cliente: ${cuentaActiva.name} (Pago Parcial)\n`;
+        } else {
+            ticket += `Mesa/Cliente: ${cuentaActiva.name}\n`;
+        }
+        ticket += `------------------------\n`;
+        
+        itemsPagados.forEach(item => {
+            const sub = item.priceAtTime * item.quantity;
+            ticket += `${item.quantity}x ${item.nombre} - $${sub.toFixed(2)}\n`;
+        });
+        
+        ticket += `------------------------\n`;
+        ticket += `*Total Pagado: $${totalCobrarPersonaActual.toFixed(2)}*\n`;
+
+        const pagoRecibido = parseFloat(document.getElementById('monto-pago').value);
+        if (!isNaN(pagoRecibido)) {
+            ticket += `Pago con: $${pagoRecibido.toFixed(2)}\n`;
+            if (pagoRecibido >= totalCobrarPersonaActual) {
+                ticket += `Cambio: $${(pagoRecibido - totalCobrarPersonaActual).toFixed(2)}\n`;
+            }
+        }
+        ticket += `\n¡Gracias por tu preferencia! 🎱🧊`;
+
+        // Lanzar WhatsApp si hay un campo de número disponible
+        const inputWS = document.getElementById('input-whatsapp');
+        if (inputWS && inputWS.value.trim() !== "") {
+            let numeroCliente = inputWS.value.replace(/\s+/g, '');
+            const url = `https://wa.me/52${numeroCliente}?text=${encodeURIComponent(ticket)}`;
+            window.open(url, '_blank');
+        }
+
+        // ==========================================
+        // ACTUALIZACIÓN DE ESTADO EN MEMORIA LOCAL
+        // ==========================================
+        const cuentaIndex = cuentas.findIndex(c => c.id === cuentaActivaId);
+
+        if (itemsPendientes.length === 0) {
+            // Caso A: Se liquidó toda la mesa
+            if (cuentaIndex !== -1) {
+                cuentas[cuentaIndex].status = 'closed';
+                cuentas[cuentaIndex].items = itemsPagados; // Guardamos lo cobrado para historial
+                cuentas[cuentaIndex].total = totalCobrarPersonaActual;
+            }
+            localStorage.removeItem('cuentaActivaId');
+            localStorage.setItem('cuentas', JSON.stringify(cuentas));
+            alert(`¡Mesa liquidada por completo! Total: $${totalCobrarPersonaActual.toFixed(2)}`);
+            window.location.href = 'index.html';
+        } else {
+            // Caso B: Cobro parcial, la mesa continúa abierta con lo que sobró
+            cuentaActiva.items = itemsPendientes;
+            cuentaActiva.total = itemsPendientes.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
+            
+            if (cuentaIndex !== -1) {
+                cuentas[cuentaIndex] = cuentaActiva;
+            }
+            localStorage.setItem('cuentas', JSON.stringify(cuentas));
+            
+            alert(`Cobro parcial exitoso por $${totalCobrarPersonaActual.toFixed(2)}. La mesa sigue abierta con los productos restantes.`);
+            
+            // Ocultar modal y re-renderizar la pantalla de cobro para la siguiente persona
+            document.getElementById('modal-cobro').style.display = 'none';
+            renderizerTicket();
+            iniciarPOS();
+        }
+    });
+}*/
+
+
+
+// Inicializar la ejecución general al cargar el script
 iniciarPOS();
-
